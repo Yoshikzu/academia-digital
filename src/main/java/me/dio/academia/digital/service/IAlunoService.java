@@ -51,5 +51,4 @@ public interface IAlunoService {
      */
     List<AvaliacaoFisica> getAllAvaliacaoFisicaId(Long id);
 
-
 }

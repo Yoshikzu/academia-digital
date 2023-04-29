@@ -26,43 +26,57 @@ public class AlunoServiceImpl implements IAlunoService {
         aluno.setCpf(form.getCpf());
         aluno.setBairro(form.getBairro());
         aluno.setDataDeNascimento(form.getDataDeNascimento());
-
         return repository.save(aluno);
     }
 
     @Override
     public Aluno get(Long id) {
-        return null;
+        return getAluno(id);
     }
 
     @Override
     public List<Aluno> getAll(String dataDeNascimento) {
-
         if(dataDeNascimento == null) {
             return repository.findAll();
         } else {
             LocalDate localDate = LocalDate.parse(dataDeNascimento, JavaTimeUtils.LOCAL_DATE_FORMATTER);
             return repository.findByDataDeNascimento(localDate);
         }
-
     }
 
     @Override
-    public Aluno update(Long id, AlunoUpdateForm formUpdate) {
-        return null;
+    public Aluno update(Long id, AlunoUpdateForm dadosAlunoAtualizado) {
+        var aluno = getAluno(id);
+        if(dadosAlunoAtualizado.getNome() != null){
+            aluno.setNome(dadosAlunoAtualizado.getNome());
+        }
+        if(dadosAlunoAtualizado.getBairro() != null){
+            aluno.setBairro(dadosAlunoAtualizado.getBairro());
+        }
+        if(dadosAlunoAtualizado.getDataDeNascimento() != null){
+            aluno.setDataDeNascimento(dadosAlunoAtualizado.getDataDeNascimento());
+        }
+        return repository.save(aluno);
     }
 
     @Override
     public void delete(Long id) {
+        var aluno = getAluno(id);
+        repository.delete(aluno);
     }
 
     @Override
     public List<AvaliacaoFisica> getAllAvaliacaoFisicaId(Long id) {
-
         Aluno aluno = repository.findById(id).get();
-
         return aluno.getAvaliacoes();
+    }
 
+    private Aluno getAluno(Long id){
+        var aluno = repository.findById(id).orElse(null);
+        if(aluno == null){
+            throw new RuntimeException("Aluno (id: " +  id + ") não cadastrado no sistema!");
+        }
+        return aluno;
     }
 
 }

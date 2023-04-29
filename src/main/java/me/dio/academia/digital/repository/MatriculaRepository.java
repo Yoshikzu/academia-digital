@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface MatriculaRepository extends JpaRepository<Matricula, Long> {
@@ -21,7 +22,10 @@ public interface MatriculaRepository extends JpaRepository<Matricula, Long> {
     //@Query("FROM Matricula m WHERE m.aluno.bairro = :bairro ")
     List<Matricula> findAlunosMatriculadosBairro(String bairro);
 
-    //List<Matricula> findByAlunoBairro(String bairro);
+    @Query(value = " SELECT * FROM tb_matriculas m " +
+            " INNER JOIN tb_alunos a ON m.aluno_id = a.id " +
+            " WHERE m.aluno_id = :idAluno",nativeQuery = true)
+    Matricula findByIdAluno(Long idAluno);
 
 
 }

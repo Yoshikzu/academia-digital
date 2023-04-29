@@ -2,6 +2,8 @@ package me.dio.academia.digital.service.impl;
 
 import me.dio.academia.digital.entity.Aluno;
 import me.dio.academia.digital.entity.AvaliacaoFisica;
+import me.dio.academia.digital.entity.Matricula;
+import me.dio.academia.digital.entity.form.AlunoUpdateForm;
 import me.dio.academia.digital.entity.form.AvaliacaoFisicaForm;
 import me.dio.academia.digital.entity.form.AvaliacaoFisicaUpdateForm;
 import me.dio.academia.digital.repository.AlunoRepository;
@@ -24,8 +26,10 @@ public class AvaliacaoFisicaServiceImpl implements IAvaliacaoFisicaService {
     @Override
     public AvaliacaoFisica create(AvaliacaoFisicaForm form) {
         AvaliacaoFisica avaliacaoFisica = new AvaliacaoFisica();
-        Aluno aluno = alunoRepository.findById(form.getAlunoId()).get();
-
+        var aluno = alunoRepository.findById(form.getAlunoId()).orElse(null);
+        if(aluno == null){
+            throw new RuntimeException("Aluno não cadastrado no sistema!");
+        }
         avaliacaoFisica.setAluno(aluno);
         avaliacaoFisica.setPeso(form.getPeso());
         avaliacaoFisica.setAltura(form.getAltura());
@@ -35,22 +39,38 @@ public class AvaliacaoFisicaServiceImpl implements IAvaliacaoFisicaService {
 
     @Override
     public AvaliacaoFisica get(Long id) {
-        return null;
+        return getAvaliacao(id);
     }
 
     @Override
     public List<AvaliacaoFisica> getAll() {
-
         return avaliacaoFisicaRepository.findAll();
     }
 
     @Override
-    public AvaliacaoFisica update(Long id, AvaliacaoFisicaUpdateForm formUpdate) {
-        return null;
+    public AvaliacaoFisica update(Long id, AvaliacaoFisicaUpdateForm dadosAvalicaoAtualizado) {
+        var avaliacao = getAvaliacao(id);
+        if(dadosAvalicaoAtualizado.getPeso() != 0d){
+            avaliacao.setPeso(dadosAvalicaoAtualizado.getPeso());
+        }
+        if(dadosAvalicaoAtualizado.getAltura() != 0d){
+            avaliacao.setAltura(dadosAvalicaoAtualizado.getAltura());
+        }
+
+        return avaliacaoFisicaRepository.save(avaliacao);
     }
 
     @Override
     public void delete(Long id) {
+        var avaliacao = getAvaliacao(id);
+        avaliacaoFisicaRepository.delete(avaliacao);
+    }
 
+    private AvaliacaoFisica getAvaliacao(Long id){
+        var avaliacao = avaliacaoFisicaRepository.findById(id).orElse(null);
+        if(avaliacao == null){
+            throw new RuntimeException("Avaliação Física (id: " +  id + ") não cadastrado no sistema!");
+        }
+        return avaliacao;
     }
 }
